@@ -142,11 +142,18 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
             16: {"nombre_oficial": "San Antonio Sacatapequez", "alias_pdf": ["san antonio sacatepequez"]}
             17: {"nombre_oficial": "San Cristobal Cuhco", "alias_pdf": ["san cristobal cucho"]}
             18: {"nombre_oficial": "San Jose El Rodeo", "alias_pdf": ["ixchiguan"]}
-            19: {"nombre_oficial": "Ixchiguan", "alias_pdf": ["ixchiguan"]}
-            20: {"nombre_oficial": "Ixchiguan", "alias_pdf": ["ixchiguan"]}
-            21: {"nombre_oficial": "Ixchiguan", "alias_pdf": ["ixchiguan"]}
-
-          
+            19: {"nombre_oficial": "San Jose Ojetenam", "alias_pdf": ["san jose ojetenam"]}
+            20: {"nombre_oficial": "San Lorenzo", "alias_pdf": ["San Lorenzo"]}
+            21: {"nombre_oficial": "San Marcos", "alias_pdf": ["San Marcos"]}
+            22: {"nombre_oficial": "San Miguel Ixtahuacan", "alias_pdf": ["san miguel ixtahuacan"]}
+            23: {"nombre_oficial": "San Pablo", "alias_pdf": ["San Pablo"]}
+            24: {"nombre_oficial": "San Pedro Sacatapequez", "alias_pdf": ["San Pedro Sacatepequez"]}
+            25: {"nombre_oficial": "San Rafael Pie De La Cuesta", "alias_pdf": ["san rafael", "san pie de la cuesta"]}
+            26: {"nombre_oficial": "Sibinal", "alias_pdf": ["sibinal"]}
+            27: {"nombre_oficial": "Sipacapa", "alias_pdf": ["sipacapa"]}
+            28: {"nombre_oficial": "Tacana", "alias_pdf": ["tacana"]}
+            29: {"nombre_oficial": "Tajamulco", "alias_pdf": ["tajamulco"]}
+            30: {"nombre_oficial": "Tejutla", "alias_pdf": ["tejutla"]}
         }
         
         search_list = []
@@ -159,7 +166,7 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
         search_list.sort(key=lambda x: (x[1] == 1, -len(x[0])))
 
         EXCEL_MAPPINGS = {
-            1: "totonicapán", 2: "san cristobal", 3: "san francisco", 4: "san andres",
+            1: "ayutla", 2: "san cristobal", 3: "san francisco", 4: "san andres",
             5: "momostenango", 6: "santa maria", 7: "santa lucia", 8: "san bartolo"
         }
 
