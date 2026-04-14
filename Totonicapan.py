@@ -276,11 +276,26 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
                     for row_tbl in tables:
                         if not row_tbl: continue
                         row_text = " ".join([str(x) for x in row_tbl if x])
+                        row_text_normalized = normalize_text(row_text)
+                        
+                        # Skip administrative/total rows
+                        skip_keywords = ['totales', 'total:', 'superintendencia', 'datos del certificador', 
+                                        'contribuyendo por el pais', 'sujeto a pagos', 'no genera derecho']
+                        if any(keyword in row_text_normalized for keyword in skip_keywords):
+                            continue
+                        
                         val = extract_value_from_row(row_tbl, total_col_idx)
                         
                         # Skip rows with zero value
                         if val <= 0:
                             continue
+                        
+                        # Extract description (usually column index 3)
+                        description = ""
+                        if len(row_tbl) > 3:
+                            description = str(row_tbl[3]) if row_tbl[3] else row_text
+                        else:
+                            description = row_text
                         
                         # Use fuzzy matching to categorize
                         category, matched_word = fuzzy_match_category(row_text, cultivados, abarrotes, threshold=80)
@@ -291,7 +306,7 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
                             abar_sum += val
                         elif category == 'unmatched':
                             # Add to unmatched items sheet for manual review
-                            ws_unmatched.append([row_text, m_name, val, dte_val])
+                            ws_unmatched.append([description, m_name, val, dte_val])
                     
                     nit_e_match = re.search(r'Emisor:\s*([0-9Kk\-]+)', text, re.I)
                     nit_r_match = re.search(r'Receptor:\s*([0-9Kk\-]+)', text, re.I)
