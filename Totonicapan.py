@@ -264,40 +264,74 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
                                  'chaomein', 'chaumein', 'cahomein', 'crema', 'leche', 'mantequilla', 'aceite', 'arroz',
                                  'frijol', 'azucar', 'azúcar', 'sal', 'harina', 'pasta', 'fideos', 'atol', 'incaparina']
                     
+                    # Find the Total column and Description column indices
                     total_col_idx = -1
+                    desc_col_idx = -1
+                    
                     for row_tbl in tables:
                         if not row_tbl: continue
                         for idx, cell in enumerate(row_tbl):
-                            if cell and 'total' in normalize_text(str(cell)) and 'descuento' not in normalize_text(str(cell)):
+                            if not cell: continue
+                            cell_norm = normalize_text(str(cell))
+                            
+                            # Find Total column (has "Total" and "(Q)")
+                            if 'total' in cell_norm and 'descuento' not in cell_norm and '(q)' in cell_norm:
                                 total_col_idx = idx
-                                break
-                        if total_col_idx != -1: break
+                            
+                            # Find Description column
+                            if 'descripcion' in cell_norm:
+                                desc_col_idx = idx
+                        
+                        if total_col_idx != -1 and desc_col_idx != -1:
+                            break
+                    
+                    # If we didn't find the description column, assume it's index 3
+                    if desc_col_idx == -1:
+                        desc_col_idx = 3
 
+                    # Process each row in the tables
                     for row_tbl in tables:
                         if not row_tbl: continue
+                        
+                        # Build full row text for matching
                         row_text = " ".join([str(x) for x in row_tbl if x])
                         row_text_normalized = normalize_text(row_text)
                         
-                        # Skip administrative/total rows
-                        skip_keywords = ['totales', 'total:', 'superintendencia', 'datos del certificador', 
-                                        'contribuyendo por el pais', 'sujeto a pagos', 'no genera derecho']
+                        # FILTER 1: Skip rows with administrative keywords
+                        skip_keywords = ['totales', 'superintendencia', 'datos del certificador', 
+                                        'contribuyendo', 'sujeto a pagos', 'no genera derecho',
+                                        'descripcion', 'cantidad', 'unitario', 'descuentos', 'impuestos']
                         if any(keyword in row_text_normalized for keyword in skip_keywords):
                             continue
                         
+                        # FILTER 2: First cell should be a number (item number like 1, 2, 3...)
+                        if row_tbl and row_tbl[0]:
+                            first_cell = str(row_tbl[0]).strip()
+                            # Check if first cell is a number (item rows start with 1, 2, 3, etc.)
+                            if not first_cell.isdigit():
+                                continue
+                        else:
+                            continue
+                        
+                        # Extract the value
                         val = extract_value_from_row(row_tbl, total_col_idx)
                         
-                        # Skip rows with zero value
+                        # Skip rows with zero or invalid value
                         if val <= 0:
                             continue
                         
-                        # Extract description (usually column index 3)
+                        # Extract ONLY the description from the correct column
                         description = ""
-                        if len(row_tbl) > 3:
-                            description = str(row_tbl[3]) if row_tbl[3] else row_text
+                        if desc_col_idx < len(row_tbl) and row_tbl[desc_col_idx]:
+                            description = str(row_tbl[desc_col_idx]).strip()
                         else:
-                            description = row_text
+                            # Fallback: try index 3
+                            if len(row_tbl) > 3 and row_tbl[3]:
+                                description = str(row_tbl[3]).strip()
+                            else:
+                                description = row_text
                         
-                        # Use fuzzy matching to categorize
+                        # Use fuzzy matching to categorize (using full row text for matching)
                         category, matched_word = fuzzy_match_category(row_text, cultivados, abarrotes, threshold=80)
                         
                         if category == 'agricultura':
@@ -305,7 +339,7 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
                         elif category == 'abarrotes':
                             abar_sum += val
                         elif category == 'unmatched':
-                            # Add to unmatched items sheet for manual review
+                            # Add ONLY the description to unmatched items sheet
                             ws_unmatched.append([description, m_name, val, dte_val])
                     
                     nit_e_match = re.search(r'Emisor:\s*([0-9Kk\-]+)', text, re.I)
