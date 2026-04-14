@@ -421,7 +421,8 @@ if st.button("INICIAR PROCESO") and uploaded_pdfs and uploaded_xlsx:
         
         success_msg = f"¡Proceso completado! {new_count} facturas procesadas y agregadas al Excel con éxito."
         if unmatched_count > 0:
-            success_msg += f"\n\n⚠️ {unmatched_count} items sin clasificar encontrados en la hoja 'Items Sin Clasificar' para revisión manual."
+            success_msg += f"\n\n⚠️ {unmatched_count} items sin clasificar encontrados. Están en la tercera hoja del archivo de Excel, 'Items sin Clasificar', para revisión manual.
+            Los totales de esos productos no fueron agregados a la cantidad de la primera hoja"
         
         st.success(success_msg)
         output.seek(0)
